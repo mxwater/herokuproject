@@ -1,15 +1,38 @@
-const express = require('express')
+const express = require('express');
+const cors = require('cors');
 
-const server = express()
+const server = express();  // Ensure you define 'server'
+server.use(cors());        // Use CORS middleware
+server.use(express.json()); // For parsing application/json
 
-server.use(express.json())
+server.get('/api/users', (req, res) => {
+    res.json(users);
+});
 
-server.get('/hello', (req, res) => {
-    res.json('hello, there!')
-})
+server.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
 
-const port = process.env.PORT || 9000
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser) {
+        return res.status(400).json({ message: 'Username already exists' });
+    }
 
-server.listen(port, () => {
-    console.log(`listening on port ${port} `)
-})
+    const newUser = { id: users.length + 1, username, password };
+    users.push(newUser);
+    res.status(201).json(newUser);
+});
+
+server.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+        res.json({ message: `Welcome back, ${username}!` });
+    } else {
+        res.status(401).json({ message: 'Invalid credentials' });
+    }
+});
+
+
+
+let users = [];
